@@ -1,5 +1,6 @@
 # yash.dev — a portfolio you can walk around
-
+https://yash-dev-portfolio-five.vercel.app/story.html
+<img width="1919" height="947" alt="image" src="https://github.com/user-attachments/assets/19a1d8fd-2186-4628-8775-8f903cfeac05" />
 A small 3D island that *is* the portfolio. Load screen → title screen → welcome
 cutscene → five zones you can walk to, each one opening a full page: **projects,
 skills, about, quest log, contact**. Built with plain ES modules and Three.js
