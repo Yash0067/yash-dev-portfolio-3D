@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<!-- the story entry comes first: Chapter Zero → the island -->
+<script>
+(function(){
+  var q = location.search, h = location.hash;
+  /* deep links and dev flags go straight through */
+  if (/[?&](resume|story|skip|quality|debug|plain)=?/.test(q)) return;
+  if (h && h.indexOf('x=') > -1) return;
+  location.replace('story.html');
+})();
+</script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f7f4ec" />
+<title>Yash Dhiver — Front-End Developer | YASH.DEV</title>
+<meta name="description" content="Yash Dhiver — Full Stack and Front-End Developer, B.Sc. Computer Science graduate from Mumbai. Explore a floating 3D island portfolio with five zones: about, projects, skills, quests and contact." />
+<meta name="author" content="Yash Dhiver" />
+<meta property="og:title" content="YASH.DEV — Front-End Developer" />
+<meta property="og:description" content="A playable 3D portfolio island. Five portals, one developer, Mumbai." />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="assets/avatar.png" />
+<meta property="og:site_name" content="YASH.DEV" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="assets/avatar.png" />
+<link rel="icon" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+
+<!-- three.js r160 + addons, pinned (jsDelivr) -->
+<script>
+/* ── safety net ──────────────────────────────────────────────────────────────
+   If this device has no WebGL, the CDN is blocked, or the 3D scene simply
+   fails to boot, fall straight through to the fast 2D version instead of
+   leaving a spinner on screen forever.                                    */
+(function(){
+  var done = false;
+  function hasWebGL(){
+    try {
+      var c = document.createElement('canvas');
+      return !!(window.WebGL2RenderingContext && c.getContext('webgl2')) ||
+             !!(window.WebGLRenderingContext && c.getContext('webgl'));
+    } catch (e){ return false; }
+  }
+  window.__flatFallback = function(why){
+    if (done || window.__YDEV_READY) return;
+    done = true;
+    ['loading', 'title', 'hud'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
+    var simple = document.getElementById('simple');
+    if (simple){ simple.classList.remove('hidden'); simple.scrollTop = 0; }
+    document.body.classList.add('simple-mode');
+    document.documentElement.classList.add('flat-mode');
+    var note = document.getElementById('flatNote');
+    if (note){ note.hidden = false; note.querySelector('span').textContent = why; }
+  };
+  if (!hasWebGL()){
+    setTimeout(function(){ window.__flatFallback('WebGL is off in this browser — here is the fast 2D version.'); }, 250);
+  }
+  addEventListener('error', function(e){
+    var m = String((e && e.message) || '');
+    if (/webgl|import|module|three|specifier/i.test(m)) {
+      window.__flatFallback('The 3D engine could not start here — showing the 2D version.');
+    }
+  }, true);
+  setTimeout(function(){
+    if (!window.__YDEV_READY) window.__flatFallback('3D is slow or blocked on this device — showing the fast 2D version.');
+  }, 9000);
+})();
+</script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<div id="fade" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="grain" aria-hidden="true"></div>
+
+<!-- intro cutscene frame -->
+<div id="letterbox" aria-hidden="true">
+  <div class="lb-bar lb-top"></div>
+  <div class="lb-bar lb-bottom"></div>
+  <button type="button" id="skipIntro" class="lb-skip">SKIP ▸</button>
+</div>
+
+<!-- ═══════════════════════ LOADING ═══════════════════════ -->
+<section class="screen" id="loading" aria-live="polite">
+  <div>
+    <svg class="blocky-svg loading-blocky" viewBox="0 0 120 104" role="img" aria-label="Claude the guide, hopping">
+        <g class="b-hop">
+          <g class="b-cap">
+            <rect x="14" y="16" width="92" height="14" fill="#2f6fe0" stroke="#121216" stroke-width="4"/>
+            <rect x="40" y="27" width="46" height="7" fill="#2558b8" stroke="#121216" stroke-width="4"/>
+          </g>
+          <rect x="18" y="32" width="84" height="50" fill="#ee8470" stroke="#121216" stroke-width="4"/>
+          <rect x="10" y="40" width="9" height="24" fill="#c2604f" stroke="#121216" stroke-width="4"/>
+          <rect x="101" y="40" width="9" height="24" fill="#c2604f" stroke="#121216" stroke-width="4"/>
+          <g class="b-eyes">
+            <rect x="36" y="48" width="14" height="16" fill="#121216"/>
+            <rect x="70" y="48" width="14" height="16" fill="#121216"/>
+          </g>
+          <rect x="30" y="84" width="13" height="16" fill="#c2604f" stroke="#121216" stroke-width="4"/>
+          <rect x="77" y="84" width="13" height="16" fill="#c2604f" stroke="#121216" stroke-width="4"/>
+        </g>
+      </svg>
+    <div class="load-title">LOADING WORLD…</div>
+    <div class="loadbar" role="progressbar" aria-label="Loading the island"><i id="loadFill"></i></div>
+    <div class="loadrow">
+      <span id="loadFile">starting…</span>
+      <span id="loadPct">0%</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ TITLE ═══════════════════════ -->
+<section class="screen hidden" id="title">
+  <div class="title-card">
+    <img class="logo" src="assets/logo.png" alt="YASH.DEV logo" />
+    <h1 class="wordmark">YASH<b>.</b>DEV</h1>
+    <p class="subline">Front-End Developer · Mumbai, IN</p>
+    <img class="avatar-chip" src="assets/avatar.png" alt="Pixel avatar of Yash Dhiver" />
+    <svg class="blocky-svg title-blocky" viewBox="0 0 120 104" role="img" aria-label="Claude the guide, hopping">
+        <g class="b-hop">
+          <g class="b-cap">
+            <rect x="14" y="16" width="92" height="14" fill="#2f6fe0" stroke="#121216" stroke-width="4"/>
+            <rect x="40" y="27" width="46" height="7" fill="#2558b8" stroke="#121216" stroke-width="4"/>
+          </g>
+          <rect x="18" y="32" width="84" height="50" fill="#ee8470" stroke="#121216" stroke-width="4"/>
+          <rect x="10" y="40" width="9" height="24" fill="#c2604f" stroke="#121216" stroke-width="4"/>
+          <rect x="101" y="40" width="9" height="24" fill="#c2604f" stroke="#121216" stroke-width="4"/>
+          <g class="b-eyes">
+            <rect x="36" y="48" width="14" height="16" fill="#121216"/>
+            <rect x="70" y="48" width="14" height="16" fill="#121216"/>
+          </g>
+          <rect x="30" y="84" width="13" height="16" fill="#c2604f" stroke="#121216" stroke-width="4"/>
+          <rect x="77" y="84" width="13" height="16" fill="#c2604f" stroke="#121216" stroke-width="4"/>
+        </g>
+      </svg>
+    <div class="title-actions">
+      <button class="btn btn--primary blink" id="startBtn" autofocus>Press start</button>
+      <button class="btn" id="simpleTop">Simple version</button>
+      <a class="btn" href="story.html" id="storyEntry">Chapter zero</a>
+    </div>
+    <p class="subline" style="font-size:15px;letter-spacing:.12em;margin-bottom:0">A five-zone 3D portfolio · best with sound on</p>
+    <a class="story-link" href="story.html"><span class="dot" aria-hidden="true"></span> CHAPTER ZERO · THE GATES · THE STORY ENTRY</a>
+  </div>
+</section>
+
+<!-- ═══════════════════════ HUD ═══════════════════════ -->
+<div id="hud" class="hidden">
+  <div class="hud-tl">
+    <div class="hud-card">
+      <div class="coins">
+        <span class="coin-icon" aria-hidden="true"></span>
+        <span><b id="coinCount">00</b><span class="coin-total"> / <b id="coinTotal">12</b> COINS</span></span>
+      </div>
+    </div>
+    <div class="hud-card">
+      <div class="portal-meter">
+        <div class="row"><span>PORTALS</span><b id="portalCount">0/5</b></div>
+        <div class="portal-dots" id="portalDots" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hud-tr">
+    <div class="sound-box"></div>
+    <button class="btn btn--sm" id="mapBtn" aria-pressed="false">MAP</button>
+    <button class="btn btn--sm" id="doorsBtn">DOORS</button>
+    <button class="btn btn--sm" id="menuBtn">MENU</button>
+    <button class="btn btn--sm" id="helpBtn" aria-label="Replay the guided tour" title="Replay the tour">TOUR</button>
+  </div>
+
+  <div id="prompt" class="hidden">
+    <kbd>E</kbd><span id="promptTxt">ENTER</span>
+    <button id="promptBtn" class="btn btn--sm" style="padding:6px 9px" type="button">GO</button>
+  </div>
+
+  <div class="hud-hint" id="hint">
+    <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move · <kbd>SPACE</kbd> jump · <kbd>SHIFT</kbd> run · <b>E</b> enter
+    <button id="hintClose" class="btn btn--sm" style="padding:3px 7px;margin-left:8px;box-shadow:none">✕</button>
+  </div>
+</div>
+
+<!-- mobile controls -->
+<div id="stick" aria-hidden="true"><i id="stickKnob"></i></div>
+<button id="jumpBtn" aria-label="Jump">JUMP</button>
+
+<!-- NPC dialogue -->
+<div id="dialogue" class="hidden">
+  <div class="face" data-speaker="guide">
+    <svg viewBox="0 0 72 72" role="img" aria-label="Claude" xmlns="http://www.w3.org/2000/svg">
+  <rect width="72" height="72" fill="#fffdf7"/>
+  <g stroke="#121216" stroke-width="3">
+    <rect x="13" y="26" width="46" height="30" fill="#ee8470"/>
+    <rect x="11" y="16" width="50" height="10" fill="#2f6fe0"/>
+    <rect x="31" y="10" width="24" height="7" fill="#2558b8"/>
+    <rect x="21" y="35" width="8" height="9" fill="#121216" stroke="none"/>
+    <rect x="43" y="35" width="8" height="9" fill="#121216" stroke="none"/>
+    <rect x="8" y="33" width="6" height="13" fill="#c9624d"/>
+    <rect x="58" y="33" width="6" height="13" fill="#c9624d"/>
+    <rect x="21" y="56" width="8" height="10" fill="#c9624d"/>
+    <rect x="43" y="56" width="8" height="10" fill="#c9624d"/>
+  </g>
+</svg>
+  </div>
+  <div class="body">
+    <span class="who">BOT-9</span>
+    <div class="txt"></div>
+    <div class="choices hidden" role="group" aria-label="Choose"></div>
+    <span class="next">▼</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════ SIMPLE / ACCESSIBLE VERSION ═══════════════════════ -->
+<main id="simple" class="hidden">
+  <div class="wrap">
+    <div id="flatNote" class="flat-note" hidden>
+      <b>2D MODE</b> <span></span>
+      <a href="index.html">retry 3D</a>
+    </div>
+    <header class="top">
+      <div class="simple-guide">
+        <span class="simple-guide-face" aria-hidden="true"><svg viewBox="0 0 72 72" role="img" aria-label="Guide portrait" xmlns="http://www.w3.org/2000/svg">
+            <g stroke="#121216" stroke-width="3">
+              <rect x="8" y="20" width="56" height="34" fill="#ee8470"/>
+              <rect x="6" y="10" width="60" height="12" fill="#2f6fe0"/>
+              <rect x="34" y="4" width="28" height="8" fill="#2558b8"/>
+              <rect x="20" y="30" width="9" height="10" fill="#121216" stroke="none"/>
+              <rect x="44" y="30" width="9" height="10" fill="#121216" stroke="none"/>
+              <rect x="3" y="27" width="6" height="15" fill="#c9624d"/>
+              <rect x="63" y="27" width="6" height="15" fill="#c9624d"/>
+              <rect x="20" y="54" width="9" height="12" fill="#c9624d"/>
+              <rect x="44" y="54" width="9" height="12" fill="#c9624d"/>
+            </g>
+          </svg></span>
+        <span><b>CLAUDE</b> says: the plain version of Yash's portfolio — no 3D, no waiting.</span>
+      </div>
+      <div class="brand">
+        <img src="assets/logo.png" alt="" />
+        <b>YASH.DEV</b>
+      </div>
+      <h1>Yash<br />Dhiver<span>.</span></h1>
+      <p class="role">Full Stack &amp; Front-End Developer · Mumbai, Maharashtra, India</p>
+      <p class="lede">
+        B.Sc. Computer Science graduate (2026) who builds clean, responsive web experiences.
+        Solid foundation in HTML, CSS and JavaScript with a focus on responsive layouts,
+        accessibility and UI detail.
+      </p>
+      <div class="quick">
+        <a class="hot" href="assets/resumes/Yash_Dhiver_FullStack_Developer_Resume.pdf" download>Download resume</a>
+        <a href="mailto:yashdhiver00@gmail.com">Email me</a>
+        <a href="https://www.linkedin.com/in/yash-dhiver-543941252/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/Yash0067" target="_blank" rel="noopener">GitHub</a>
+        <a href="#" id="backToWorld">Back to the 3D island →</a>
+      </div>
+    </header>
+
+    <section>
+      <h2>About</h2>
+      <p>
+        I am Yash Dhiver, a B.Sc. Computer Science graduate from Mumbai who believes in crafting
+        clean, responsive web experiences that users love. My foundation is HTML, CSS and
+        JavaScript; my focus is responsive layouts and UI/UX. I am a quick learner with
+        problem-solving skills and a creative eye developed through video editing.
+      </p>
+      <div class="kv">
+        <div><b>Location</b>Mumbai, Maharashtra, India</div>
+        <div><b>Status</b>Open to full-time roles and freelance work</div>
+        <div><b>Education</b>B.Sc. Computer Science, 2022 – 2026</div>
+        <div><b>Focus</b>Front-end, responsive design, UI/UX</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Skills</h2>
+      <h3>Core</h3>
+      <ul>
+        <li>HTML5 — semantic structure, forms, accessibility</li>
+        <li>CSS3 — Flexbox, CSS Grid, custom properties, responsive layouts</li>
+        <li>JavaScript — DOM, events, fetch, ES modules</li>
+        <li>React.js — components, props/state, hooks</li>
+        <li>REST APIs — fetching, integrating and debugging responses</li>
+      </ul>
+      <h3>Working knowledge</h3>
+      <ul>
+        <li>Java — OOP fundamentals, classes, inheritance, data structures</li>
+        <li>MySQL — schema design, joins, aggregate reporting queries</li>
+        <li>Git &amp; GitHub — branching, commits, project history</li>
+        <li>Figma — wireframes, spacing and component specs</li>
+        <li>DevTools — inspect, debug, performance and network panels</li>
+        <li>Power BI, MS Excel — introductory analysis and dashboards</li>
+        <li>Python — scripting basics and coursework exercises</li>
+        <li>ChatGPT / AI tools — drafting, debugging, learning faster</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      <div class="grid">
+        <article class="p-card">
+          <h4>Portfolio Website <span class="chip chip--sky">2025</span></h4>
+          <p>Mobile-first portfolio with projects, skills and contact sections. Semantic HTML, Flexbox/Grid and a responsive navbar.</p>
+          <p style="margin-top:8px"><b>Tech:</b> HTML5, CSS3, JavaScript, Responsive</p>
+        </article>
+        <article class="p-card">
+          <h4>Styled Bio Page <span class="chip chip--sky">2025</span></h4>
+          <p>Clean single-page bio with typography hierarchy, spacing scale and interactive buttons; passed basic Lighthouse checks.</p>
+          <p style="margin-top:8px"><b>Tech:</b> HTML5, CSS3, Typography, Design</p>
+        </article>
+        <article class="p-card">
+          <h4>UI Components Mini Pack <span class="chip chip--sky">2025</span></h4>
+          <p>Reusable navbar, cards and grid gallery components; vanilla JS for the menu toggle and smooth scrolling.</p>
+          <p style="margin-top:8px"><b>Tech:</b> HTML5, CSS3, JavaScript, Components</p>
+        </article>
+        <article class="p-card">
+          <h4>MySQL Academic Database <span class="chip chip--sky">2025</span></h4>
+          <p>Normalised schema for a mock business with SELECT/JOIN/aggregate queries for reporting and analysis.</p>
+          <p style="margin-top:8px"><b>Tech:</b> MySQL, SQL, Database, Queries</p>
+        </article>
+        <article class="p-card">
+          <h4>Java Coursework App <span class="chip chip--sky">2024</span></h4>
+          <p>Object-oriented fundamentals: classes, inheritance and hand-written data structures.</p>
+          <p style="margin-top:8px"><b>Tech:</b> Java, OOP, Data Structures</p>
+        </article>
+        <article class="p-card">
+          <h4>IFA Hiring Platform <span class="chip chip--sky">2025</span></h4>
+          <p>Gamified hiring system with authentication, admin/candidate dashboards and task management.</p>
+          <p style="margin-top:8px"><b>Tech:</b> Javascript, Auth, Dashboard, Gamification</p>
+        </article>
+        <article class="p-card">
+          <h4>CopaScore <span class="chip chip--sky">2025</span></h4>
+          <p>Football analytics platform with player performance tracking, live match metrics and data visualisation.</p>
+          <p style="margin-top:8px"><b>Tech:</b> Analytics, Tracking, Sports, Data Viz</p>
+        </article>
+        <article class="p-card">
+          <h4>CopaScore AI <span class="chip chip--sky">2025</span></h4>
+          <p>AI-powered sports analytics with machine-learning predictions and player performance forecasting.</p>
+          <p style="margin-top:8px"><b>Tech:</b> Ai, Machine Learning, Predictions, Analytics</p>
+        </article>
+        <article class="p-card">
+          <h4>Sports Prediction System <span class="chip chip--sky">2025</span></h4>
+          <p>Structured analytics workflows with data processing, statistical modelling and prediction algorithms.</p>
+          <p style="margin-top:8px"><b>Tech:</b> Analytics, Predictions, Modeling, Workflows</p>
+        </article>
+        <article class="p-card">
+          <h4>Smart Algo Trading <span class="chip chip--sky">2025</span></h4>
+          <p>Trading backtesting engine with performance analysis, risk metrics and strategy optimisation tools.</p>
+          <p style="margin-top:8px"><b>Tech:</b> Trading, Backtesting, Analysis, Algorithms</p>
+        </article>
+        <article class="p-card">
+          <h4>Godrej Properties Platform <span class="chip chip--sky">2025</span></h4>
+          <p>Real-estate lead generation and sales-funnel optimisation with CRM integration and an analytics dashboard.</p>
+          <p style="margin-top:8px"><b>Tech:</b> Real Estate, Lead Gen, Crm, Analytics</p>
+        </article>
+        <article class="p-card">
+          <h4>Employee Management System <span class="chip chip--sky">2025</span></h4>
+          <p>Workflow management platform with task assignment, progress tracking and reporting.</p>
+          <p style="margin-top:8px"><b>Tech:</b> Management, Workflow, Tracking, Platform</p>
+        </article>
+        <article class="p-card">
+          <h4>SkillQuest <span class="chip chip--sky">2025</span></h4>
+          <p>Gamified learning platform with skill tracking, progress achievements and interactive course modules.</p>
+          <p style="margin-top:8px"><b>Tech:</b> Gamification, Learning, Skills, Edtech</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <div class="kv">
+        <div><b>B.Sc. Computer Science · 2022 – 2026</b>Thakur College of Science &amp; Commerce, Mumbai University</div>
+        <div><b>HSC (Science) · 2020 – 2022</b>Esplanade Junior College of Science &amp; Commerce</div>
+        <div><b>SSC · 2020</b>Our Lady of Remedy High School</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Experience &amp; activities</h2>
+      <h3>Full Stack Developer Intern — Insight Fusion Analytics</h3>
+      <div class="kv"><div><b>Nov 2025 – Apr 2026 · Mumbai</b>React, JavaScript, Python, HTML, CSS, MySQL, REST APIs</div></div>
+      <ul>
+        <li>Developed and maintained full-stack web applications with React, JavaScript, Python, HTML, CSS and MySQL</li>
+        <li>Built responsive user interfaces and integrated REST APIs</li>
+        <li>Worked with databases, debugging, testing and deployment</li>
+        <li>Collaborated in an Agile team using Git and GitHub; optimised performance and resolved production issues</li>
+      </ul>
+      <h3>Sports Analyst — Hudl</h3>
+      <div class="kv"><div><b>Jun 2026 – Sep 2026</b>Match analysis · AI-assisted tagging</div></div>
+      <ul>
+        <li>Tagged match footage and analysed gameplay to support performance review workflows</li>
+        <li>Used AI-powered tools to speed up match analysis and improve tagging accuracy</li>
+      </ul>
+      <h3>IT Support (Volunteer) — ongoing</h3>
+      <ul>
+        <li>Helped peers with software installs and basic troubleshooting</li>
+        <li>Assisted with file organisation and system optimisation</li>
+        <li>Improved communication and customer-focus skills</li>
+      </ul>
+      <h3>Video Editing &amp; Content Creation — ongoing</h3>
+      <ul>
+        <li>Edited short videos for social media: transitions, pacing, audio balance</li>
+        <li>Developed a design sense that feeds into UI/UX work</li>
+      </ul>
+      <h3>Certification — in progress</h3>
+      <ul>
+        <li>Cisco Certified Network Associate (CCNA): OSI and TCP/IP models, VLANs, routing basics, Packet Tracer</li>
+      </ul>
+      <h3>AI Tools Exploration — ongoing</h3>
+      <ul>
+        <li>Used ChatGPT and generative AI for notes and content drafts</li>
+        <li>Applied AI tools to speed up coding and debugging</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Contact</h2>
+      <div class="quick">
+        <a class="hot" href="mailto:yashdhiver00@gmail.com">yashdhiver00@gmail.com</a>
+        <a href="tel:+919867601301">+91 98676 01301</a>
+        <a href="https://www.linkedin.com/in/yash-dhiver-543941252/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/Yash0067" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </section>
+
+    <footer>
+      <span>© 2026 Yash Dhiver — Front-End Developer</span>
+      <span>Built with Three.js · Mumbai, India</span>
+    </footer>
+  </div>
+</main>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

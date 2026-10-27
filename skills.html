@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f7f4ec" />
+<title>Skills — YASH.DEV</title>
+<meta name="description" content="Yash Dhiver's skill constellation: HTML, CSS, JavaScript, Java, Python, MySQL, Git, Figma and more, as an interactive 3D node map." />
+<link rel="icon" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+</head>
+<body class="page-body">
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="grain" aria-hidden="true"></div>
+
+<header class="pagebar">
+  <div class="home">
+    <a href="index.html?resume=1" id="backBtn" class="btn btn--sm" aria-label="Back to the island">← BACK TO WORLD</a>
+    <img src="assets/logo.png" alt="" />
+    <b>YASH.DEV</b>
+  </div>
+  <div class="right"><div class="sound-box"></div></div>
+</header>
+
+<div class="page-title">
+  <h1>SKILL MATRIX</h1>
+  <p>20 SKILLS · 1 OPEN DOOR · CLICK A PLAQUE FOR THE DETAILS</p>
+</div>
+
+<nav class="jumpbar" aria-label="Sections">
+  <a href="projects.html">01 PROJECTS</a>
+  <a href="skills.html" class="on" aria-current="page">02 SKILLS</a>
+  <a href="about.html">03 ABOUT</a>
+  <a href="quests.html">04 EXPERIENCE</a>
+  <a href="contact.html">05 CONTACT</a>
+</nav>
+
+<script type="module" src="js/skills.js"></script>
+</body>
+</html>
