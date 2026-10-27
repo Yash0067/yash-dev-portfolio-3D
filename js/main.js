@@ -590,9 +590,10 @@ const knob = $('#stickKnob');
 const stickVec = { x: 0, y: 0 };
 let stickId = null;
 if (touch && stick){
-  const R = 44;
   const move = (e) => {
+    e.preventDefault();
     const b = stick.getBoundingClientRect();
+    const R = Math.max(20, (b.width - knob.offsetWidth) / 2 - 4);
     let dx = e.clientX - (b.left + b.width / 2);
     let dy = e.clientY - (b.top + b.height / 2);
     const d = Math.hypot(dx, dy) || 1;
@@ -606,10 +607,18 @@ if (touch && stick){
     knob.style.transform = 'translate(0,0)';
     stickId = null;
   };
-  stick.addEventListener('pointerdown', (e) => { stickId = e.pointerId; stick.setPointerCapture(e.pointerId); move(e); });
-  stick.addEventListener('pointermove', (e) => { if (stickId === e.pointerId) move(e); });
+  stick.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    stickId = e.pointerId;
+    stick.setPointerCapture(e.pointerId);
+    move(e);
+  });
+  stick.addEventListener('pointermove', (e) => {
+    if (stickId === e.pointerId) move(e);
+  });
   stick.addEventListener('pointerup', end);
   stick.addEventListener('pointercancel', end);
+  stick.addEventListener('lostpointercapture', end);
   $('#jumpBtn')?.addEventListener('click', () => { jumpHold = true; });
 }
 
