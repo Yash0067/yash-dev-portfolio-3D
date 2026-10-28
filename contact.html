@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#f7f4ec" />
+<title>Contact — YASH.DEV</title>
+<meta name="description" content="Get in touch with Yash Dhiver — front-end developer in Mumbai. Email, phone, LinkedIn, GitHub and a résumé download." />
+<link rel="icon" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<style>
+  .contact-dock{
+    position:fixed; left:22px; bottom:64px; z-index:20;   /* clears the floating island pill */
+    width:min(330px, calc(100vw - 44px));
+    background:var(--paper-2); border:3px solid var(--ink);
+    box-shadow:var(--shadow); padding:16px 16px 14px;
+  }
+  .contact-dock h2{
+    font-family:var(--pixel); font-size:10px; letter-spacing:.12em; margin-bottom:12px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .contact-dock h2::before{ content:""; width:10px; height:10px; background:var(--red); display:block; }
+  .contact-dock a{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    font-family:var(--crt); font-size:17px; color:var(--ink); text-decoration:none;
+    border-bottom:2px dashed var(--line); padding:9px 2px;
+    transition:background .12s, padding-left .12s;
+  }
+  .contact-dock a:hover, .contact-dock a:focus-visible{
+    background:#fff; padding-left:8px; border-bottom-color:var(--red); outline:none;
+  }
+  .contact-dock a:focus-visible{ box-shadow:inset 0 0 0 3px var(--red); }
+  .contact-dock a span{ font-family:var(--pixel); font-size:8px; color:var(--red); letter-spacing:.08em; }
+  .contact-dock .row{ display:flex; gap:8px; margin-top:14px; }
+  .cv-pick{
+    display:flex; flex-wrap:wrap; gap:6px; align-items:center;
+    margin-top:12px; padding-top:10px; border-top:2px solid var(--line);
+  }
+  .cv-pick span{
+    font-family:var(--pixel); font-size:7px; letter-spacing:.08em; color:var(--grey);
+    width:100%; margin-bottom:2px;
+  }
+  .contact-dock .cv-pick a{
+    font-family:var(--pixel); font-size:7px; letter-spacing:.06em; color:var(--ink);
+    border:2px solid var(--ink); padding:6px 8px; text-decoration:none; background:var(--paper-2);
+    display:inline-flex; justify-content:center; padding-left:8px;
+  }
+  .contact-dock .cv-pick a:hover{ background:var(--ink); color:var(--paper-2); padding-left:8px; }
+  .contact-dock .row .btn{ flex:1; justify-content:center; text-align:center; }
+  @media (max-width:760px){
+    .contact-dock{ left:10px; right:10px; bottom:58px; width:auto; padding:10px 12px; max-height:62vh; overflow:auto; }
+    .contact-dock a{ font-size:15px; padding:7px 2px; }
+    .contact-dock .row{ margin-top:10px; }
+    .cv-pick{ margin-top:9px; padding-top:8px; }
+  }
+</style>
+</head>
+<body class="page-body">
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="grain" aria-hidden="true"></div>
+
+<header class="pagebar">
+  <div class="home">
+    <a href="index.html?resume=1" id="backBtn" class="btn btn--sm" aria-label="Back to the island">← BACK TO WORLD</a>
+    <img src="assets/logo.png" alt="" />
+    <b>YASH.DEV</b>
+  </div>
+  <div class="right"><div class="sound-box"></div></div>
+</header>
+
+<div class="page-title">
+  <h1>CONTACT</h1>
+  <p>MISSION CONTROL · LAUNCH A MESSAGE</p>
+</div>
+
+<nav class="jumpbar" aria-label="Sections">
+  <a href="projects.html">01 PROJECTS</a>
+  <a href="skills.html">02 SKILLS</a>
+  <a href="about.html">03 ABOUT</a>
+  <a href="quests.html">04 EXPERIENCE</a>
+  <a href="contact.html" class="on" aria-current="page">05 CONTACT</a>
+</nav>
+
+<aside class="contact-dock" aria-label="Contact details">
+  <h2>DIRECT LINES</h2>
+  <a href="mailto:yashdhiver00@gmail.com">yashdhiver00@gmail.com <span>MAIL</span></a>
+  <a href="tel:+919867601301">+91 98676 01301 <span>CALL</span></a>
+  <a href="https://www.linkedin.com/in/yash-dhiver-543941252/" target="_blank" rel="noopener">LinkedIn <span>↗</span></a>
+  <a href="https://github.com/Yash0067" target="_blank" rel="noopener">GitHub <span>↗</span></a>
+  <div class="row">
+    <button class="btn btn--primary" id="launchTop" type="button">LAUNCH</button>
+    <a class="btn" href="assets/resumes/Yash_Dhiver_FullStack_Developer_Resume.pdf" download>RÉSUMÉ</a>
+  </div>
+  <div class="cv-pick" aria-label="Other versions of the résumé">
+    <span>RÉSUMÉ VERSIONS</span>
+    <a href="assets/resumes/Yash_Dhiver_Technical_Support_Resume.pdf" download>TECH SUPPORT</a>
+    <a href="assets/resumes/Yash_Dhiver_Accessibility_QA_Resume.pdf" download>ACCESSIBILITY QA</a>
+  </div>
+</aside>
+
+<script type="module" src="js/contact.js"></script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#090d18" />
+<title>Chapter Zero · The Gates — YASH.DEV</title>
+<meta name="description" content="The story entry to Yash Dhiver's portfolio: a night courtyard, floating candles, an open gate and Claude, the guide, telling you what is inside." />
+<link rel="icon" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<style>
+  /* the courtyard at night: the only page that is allowed to be this dark */
+  body{ background:#090d18; color:#f2eee2; overflow:hidden; }
+  #grain{ opacity:.14; mix-blend-mode:screen; }
+
+  .pagebar .home b{ color:#f2eee2; }
+  .pagebar .home img{ background:#fff; }
+  .sound-box{ background:#131826; border-color:#f2eee2; color:#f2eee2; box-shadow:5px 5px 0 #000; }
+  .sound-box button{ background:#1d2333; border-color:#f2eee2; color:#f2eee2; }
+  .btn{ --bg:#131826; --fg:#f2eee2; border-color:#f2eee2; box-shadow:5px 5px 0 #000; }
+  .btn:hover{ background:#f2eee2; color:#090d18; }
+
+  /* ── the chapter stamp at the top ─────────────────────────────────────── */
+  .chapter-mark{
+    position:fixed; top:66px; left:50%; transform:translateX(-50%); z-index:30;
+    text-align:center; pointer-events:none; width:min(680px, calc(100vw - 32px));
+  }
+  .chapter-mark .kicker{
+    font-family:var(--pixel); font-size:8px; letter-spacing:.26em; color:#ffc93c;
+    display:block; margin-bottom:12px;
+  }
+  .chapter-mark h1{
+    font-family:var(--pixel); font-size:clamp(14px, 2.9vw, 26px); letter-spacing:.12em;
+    margin:0; line-height:1.5; color:#fdfbf4;
+    text-shadow:0 0 26px rgba(255,196,94,.35), 4px 4px 0 rgba(0,0,0,.6);
+  }
+  .chapter-mark .rule{
+    width:78px; height:3px; background:#ff2a00; margin:16px auto 0; box-shadow:0 0 18px rgba(255,42,0,.8);
+  }
+  .chapter-mark p{
+    font-family:var(--pixel); font-size:8px; letter-spacing:.14em; color:#9aa3bb; margin:14px 0 0;
+  }
+
+  /* ── the narration box ────────────────────────────────────────────────── */
+  #story{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%); z-index:40;
+    width:min(880px, calc(100vw - 28px));
+    display:grid; grid-template-columns:104px 1fr;
+    background:#12161f; border:4px solid #f2eee2; box-shadow:9px 9px 0 #000;
+  }
+  #story .face{
+    border-right:4px solid #f2eee2; background:#fffdf7; display:grid; place-items:center; padding:10px;
+  }
+  #story .face svg{ width:100%; height:100%; display:block; }
+  #story .body{ padding:16px 18px 18px; position:relative; }
+  #story .cue{
+    font-family:var(--pixel); font-size:8px; letter-spacing:.12em; color:#ffc93c;
+    display:inline-block; margin-bottom:10px;
+  }
+  #story .who{
+    font-family:var(--pixel); font-size:9px; letter-spacing:.1em;
+    background:#ff2a00; color:#fff; padding:5px 8px; margin-left:8px; display:inline-block;
+  }
+  #storyText{
+    font-family:var(--crt); font-size:21px; line-height:1.32; min-height:3.6em;
+    color:#f2eee2; margin:0;
+  }
+  #story .actions{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  #story .actions .btn{ font-size:8px; padding:11px 13px; box-shadow:4px 4px 0 #000; }
+  #story .actions .btn--primary{ background:#ffc93c; color:#090d18; border-color:#f2eee2; }
+  #story .actions .btn--primary:hover{ background:#fff; color:#090d18; }
+  #story .actions .btn--ghost{ background:transparent; color:#9aa3bb; border-color:#4b5163; box-shadow:none; }
+  #story .actions .btn--ghost:hover{ color:#f2eee2; border-color:#f2eee2; }
+  #story .hint{
+    position:absolute; right:16px; bottom:64px; font-family:var(--pixel); font-size:7px;
+    letter-spacing:.1em; color:#5d6478;
+  }
+
+  /* ── mobile ───────────────────────────────────────────────────────────── */
+  @media (max-width:760px){
+    .chapter-mark{ top:62px; }
+    #story .actions{ flex-wrap:wrap; }
+    #story .actions .btn{ flex:1 1 auto; justify-content:center; }
+    #story .actions .btn--ghost{ flex:0 0 auto; }
+    #story .who{ display:none; }
+    .chapter-mark p{ display:none; }
+    #story{ grid-template-columns:64px 1fr; bottom:14px; }
+    #storyText{ font-size:17px; min-height:5.2em; }
+    #story .hint{ display:none; }
+    #story .actions .btn{ font-size:7px; padding:9px 10px; }
+  }
+</style>
+</head>
+<body class="page-body">
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="grain" aria-hidden="true"></div>
+
+<header class="pagebar">
+  <div class="home">
+    <a href="index-2d.html" class="btn btn--sm" aria-label="Read the plain version">PLAIN PAGE</a>
+    <img src="assets/logo.png" alt="" />
+    <b>YASH.DEV</b>
+  </div>
+  <div class="right">
+    <div class="sound-box"></div>
+  </div>
+</header>
+
+<div class="chapter-mark">
+  <span class="kicker">CHAPTER ZERO</span>
+  <h1>THE GATES</h1>
+  <div class="rule" aria-hidden="true"></div>
+  <p>FIVE DOORS · ONE GUIDE · NOTHING EXAGGERATED</p>
+</div>
+
+<section id="story" aria-label="Narration">
+  <div class="face" id="storyFace">
+      <svg viewBox="0 0 72 72" role="img" aria-label="Claude" xmlns="http://www.w3.org/2000/svg">
+  <rect width="72" height="72" fill="#fffdf7"/>
+  <g stroke="#121216" stroke-width="3">
+    <rect x="13" y="26" width="46" height="30" fill="#ee8470"/>
+    <rect x="11" y="16" width="50" height="10" fill="#2f6fe0"/>
+    <rect x="31" y="10" width="24" height="7" fill="#2558b8"/>
+    <rect x="21" y="35" width="8" height="9" fill="#121216" stroke="none"/>
+    <rect x="43" y="35" width="8" height="9" fill="#121216" stroke="none"/>
+    <rect x="8" y="33" width="6" height="13" fill="#c9624d"/>
+    <rect x="58" y="33" width="6" height="13" fill="#c9624d"/>
+    <rect x="21" y="56" width="8" height="10" fill="#c9624d"/>
+    <rect x="43" y="56" width="8" height="10" fill="#c9624d"/>
+  </g>
+</svg>
+  </div>
+  <div class="body">
+    <span class="cue" id="storyCue">01 · ARRIVAL</span><span class="who">CLAUDE</span>
+    <p id="storyText">The gates are open. Yash built this place out of boxes, one page at a time — I am Claude, I walk people through it.</p>
+    <span class="hint">ENTER / SPACE ▸ NEXT</span>
+    <div class="actions">
+      <a class="btn btn--primary" href="index.html?story=1" id="storyNext">CONTINUE ▸</a>
+      <a class="btn" href="index.html?story=1" id="storySkip">SKIP TO THE ISLAND</a>
+      <a class="btn btn--ghost" href="index-2d.html" id="storyPlain">PLAIN PAGE</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  /* If the 3D never boots — blocked CDN, no WebGL, sandboxed preview — the
+     story and the links above still work. This just tells the visitor why. */
+  setTimeout(() => {
+    if (window.__STORY_BOOTED) return;
+    document.body.classList.add('no-gl');
+    const note = document.createElement('div');
+    note.className = 'gl-note';
+    note.innerHTML = '<b>THE COURTYARD NEEDS WEBGL</b> The story below still reads, and every button works. Open the island in a normal browser tab for the full 3D entrance.';
+    document.body.appendChild(note);
+  }, 4500);
+</script>
+<script type="module" src="js/story.js"></script>
+</body>
+</html>
